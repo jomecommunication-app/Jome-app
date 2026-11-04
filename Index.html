@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOME COMMUNICATION</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif;margin:0;padding:0}
+body{background:#f2f2f2}
+.header{background:#D60000;color:#fff;padding:15px;display:flex;align-items:center;gap:10px}
+.header h1{font-size:20px;line-height:1.1}
+.screen{display:none;padding:15px}
+.screen.active{display:block}
+.card{background:#fff;border-radius:12px;padding:15px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{background:#fff;border-radius:12px;padding:15px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.box b{font-size:22px;display:block}
+.box span{font-size:12px;color:#555}
+input,select,button{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:15px}
+button{background:#D60000;color:#fff;border:none;font-weight:bold;cursor:pointer}
+button.green{background:#16a34a}
+button.grey{background:#555}
+.flex{display:flex;gap:10px}
+.flex button{flex:1}
+.badge{background:#ffedd5;color:#c2410c;padding:4px 8px;border-radius:20px;font-size:12px;font-weight:bold}
+.badge.approved{background:#dcfce7;color:#166534}
+/* RECEIPT - EXACT LIKE YOUR PAPER */
+.receipt{background:#fff;padding:20px;color:#000;font-family:'Courier New',monospace;border:1px solid #ddd}
+.receipt h2{text-align:center;color:#0a2a5e;font-family:Arial;font-size:26px}
+.receipt .sub{text-align:center;font-family:Arial;font-weight:bold}
+.receipt .sub2{text-align:center}
+.receipt hr{margin:10px 0;border:1px solid #000}
+.receipt table{width:100%;border-collapse:collapse}
+.receipt th{border-bottom:2px solid #000;text-align:left;padding:5px 0}
+.receipt td{padding:5px 0}
+.receipt .total{display:flex;justify-content:space-between;font-weight:bold;font-size:20px;border-top:2px solid #000;border-bottom:2px solid #000;padding:8px 0}
+.receipt .foot{text-align:center;font-style:italic;margin-top:12px;font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:26px">☰</span>
+  <h1>JOME<br>COMMUNICATION</h1>
+  <span id="who" style="margin-left:auto;font-size:12px"></span>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="card">
+    <h2>Login - JOME</h2>
+    <input id="email" placeholder="Email: Bwiremose256@gmail.com">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">LOGIN</button>
+    <p style="font-size:12px;margin-top:8px;color:#666">Admin: Bwiremose256@gmail.com<br>Agents: login with email you create below. Demo Agent: agent@jome.com / 1234</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashScreen" class="screen">
+  <h2>Dashboard</h2>
+  <p style="font-size:12px;color:#666">Home / Dashboard</p><br>
+  <div class="grid" id="dashBoxes"></div>
+  <div class="card">
+    <h3>Menu</h3>
+    <button onclick="show('usersScreen')">👥 Users - Add Agent</button>
+    <button onclick="show('stockScreen')">📦 Stock - Bulk Add</button>
+    <button onclick="show('transferScreen')">🔄 Transfer</button>
+    <button onclick="show('receiptScreen')">🧾 Make Receipt</button>
+    <button onclick="show('approveScreen')">✅ Approve Receipts</button>
+    <button onclick="show('commScreen')">💰 Commission</button>
+    <button onclick="logout()" class="grey">Logout</button>
+  </div>
+  <div class="card"><h3>Latest Sales</h3><div id="latestSales"></div></div>
+</div>
+
+<!-- USERS -->
+<div id="usersScreen" class="screen">
+  <h2>Add Agent</h2>
+  <div class="card">
+    <input id="uName" placeholder="Agent Name">
+    <input id="uEmail" placeholder="Agent Email">
+    <input id="uPhone" placeholder="Agent Phone">
+    <select id="uBranch"><option>Kampala</option><option>Masaka</option><option>Mbarara</option><option>Main Branch</option></select>
+    <input id="uComm" placeholder="Commission % e.g 5" type="number">
+    <button onclick="addUser()">Add Agent</button>
+    <button class="grey" onclick="show('dashScreen')">Back</button>
+  </div>
+  <div id="userList"></div>
+</div>
+
+<!-- STOCK -->
+<div id="stockScreen" class="screen">
+  <h2>Bulk Stock Add - Admin Only</h2>
+  <div class="card">
+    <input id="sModel" placeholder="Model e.g Tecno Pop 8">
+    <input id="sImei" placeholder="IMEI e.g 356789...">
+    <input id="sPrice" placeholder="Selling Price e.g 350000" type="number">
+    <select id="sBranch"><option>Kampala</option><option>Masaka</option><option>Mbarara</option><option>Main Branch</option></select>
+    <button onclick="addStock()">Add Stock</button>
+    <button class="grey" onclick="show('dashScreen')">Back</button>
+  </div>
+  <div id="stockList"></div>
+</div>
+
+<!-- TRANSFER -->
+<div id="transferScreen" class="screen">
+  <h2>Transfer Stock</h2>
+  <div class="card">
+    <select id="tImei"></select>
+    <select id="tTo"><option>Masaka</option><option>Mbarara</option><option>Kampala</option><option>Main Branch</option></select>
+    <button onclick="doTransfer()">Send Transfer</button>
+    <button class="grey" onclick="show('dashScreen')">Back</button>
+  </div>
+  <div id="transferList"></div>
+</div>
+
+<!-- MAKE RECEIPT -->
+<div id="receiptScreen" class="screen">
+  <h2>Make Receipt</h2>
+  <div class="card">
+    <input id="cName" placeholder="Customer Name: CUSTOMER">
+    <input id="cPhone" placeholder="Phone_No:">
+    <input id="cId" placeholder="ID_No:">
+    <select id="rStock" onchange="fillPrice()"></select>
+    <input id="rPrice" placeholder="Price" type="number">
+    <button onclick="makeReceipt()">Save - Send to Admin for Approval</button>
+    <button class="grey" onclick="show('dashScreen')">Back</button>
+  </div>
+</div>
+
+<!-- APPROVE -->
+<div id="approveScreen" class="screen">
+  <h2>Approve Receipts - Admin Only</h2>
+  <div id="pendingList"></div>
+  <button class="grey" onclick="show('dashScreen')">Back</button>
+</div>
+
+<!-- COMMISSION -->
+<div id="commScreen" class="screen">
+  <h2>Commission - Admin Pays</h2>
+  <div id="commList"></div>
+  <button class="grey" onclick="show('dashScreen')">Back</button>
+</div>
+
+<!-- PRINT RECEIPT -->
+<div id="printScreen" class="screen">
+  <div id="receiptPrint" class="receipt"></div>
+  <button onclick="window.print()">🖨️ Print / Save PDF</button>
+  <button class="green" onclick="shareReceipt()">📲 Share on WhatsApp</button>
+  <button class="grey" onclick="show('dashScreen')">Back to Dashboard</button>
+</div>
+
+<script>
+// ===== CONFIG - CHANGE ADMIN PASS HERE =====
+const ADMIN_EMAIL = "Bwiremose256@gmail.com";
+const ADMIN_PASS = "CHANGE_ME"; // Put your Admin password here, do not share it
+// ===== DATA - Saved in Browser =====
+let users = JSON.parse(localStorage.getItem('jome_users')||'[]');
+let stock = JSON.parse(localStorage.getItem('jome_stock')||'[]');
+let receipts = JSON.parse(localStorage.getItem('jome_receipts')||'[]');
+let transfers = JSON.parse(localStorage.getItem('jome_transfers')||'[]');
+let currentUser = null;
+let currentReceipt = null;
+
+function save(){localStorage.setItem('jome_users',JSON.stringify(users));localStorage.setItem('jome_stock',JSON.stringify(stock));localStorage.setItem('jome_receipts',JSON.stringify(receipts));localStorage.setItem('jome_transfers',JSON.stringify(transfers));render();}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');render();}
+
+function login(){
+  let e=document.getElementById('email').value.trim();
+  let p=document.getElementById('pass').value.trim();
+  if(e===ADMIN_EMAIL && p===ADMIN_PASS){currentUser={name:'B.MOSES',email:e,role:'admin',branch:'Main Branch'};document.getElementById('who').innerText='ADMIN B.MOSES';show('dashScreen');return;}
+  let u=users.find(x=>x.email===e);
+  if(u){currentUser={name:u.name,email:e,role:'agent',branch:u.branch,comm:u.comm};document.getElementById('who').innerText='AGENT '+u.name;show('dashScreen');return;}
+  if(e==='agent@jome.com' && p==='1234'){currentUser={name:'Demo Agent',email:e,role:'agent',branch:'Kampala',comm:5};show('dashScreen');return;}
+  alert('Wrong login');
+}
+function logout(){currentUser=null;show('loginScreen');}
+
+function addUser(){
+  let u={name:document.getElementById('uName').value,email:document.getElementById('uEmail').value,phone:document.getElementById('uPhone').value,branch:document.getElementById('uBranch').value,comm:document.getElementById('uComm').value||5};
+  if(!u.name||!u.email) return alert('Fill name and email');
+  users.push(u);save();alert('Agent Added');show('dashScreen');
+}
+function addStock(){
+  if(!currentUser||currentUser.role!=='admin') return alert('Only Admin can add stock');
+  let s={model:document.getElementById('sModel').value,imei:document.getElementById('sImei').value,price:document.getElementById('sPrice').value,branch:document.getElementById('sBranch').value,status:'in_stock'};
+  if(!s.model||!s.imei) return alert('Fill model and IMEI');
+  stock.push(s);save();alert('Stock Added');
+}
+function doTransfer(){
+  let imei=document.getElementById('tImei').value;
+  let to=document.getElementById('tTo').value;
+  let item=stock.find(s=>s.imei===imei);
+  if(!item) return;
+  transfers.push({imei:imei,model:item.model,from:item.branch,to:to,status:'pending'});
+  item.branch=to; item.status='transferred';
+  save();alert('Transfer Sent - Agent must Approve');
+}
+function fillPrice(){
+  let imei=document.getElementById('rStock').value;
+  let item=stock.find(s=>s.imei===imei);
+  if(item) document.getElementById('rPrice').value=item.price;
+}
+function makeReceipt(){
+  let imei=document.getElementById('rStock').value;
+  let item=stock.find(s=>s.imei===imei);
+  let r={
+    id:'R'+String(receipts.length+1).padStart(4,'0'),
+    cust:document.getElementById('cName').value||'CUSTOMER',
+    phone:document.getElementById('cPhone').value||'',
+    idno:document.getElementById('cId').value||'',
+    model:item?item.model:'', imei:imei,
+    price:document.getElementById('rPrice').value,
+    agent:currentUser.name, branch:currentUser.branch,
+    status:'pending', date:new Date().toLocaleDateString('en-GB'), time:new Date().toLocaleTimeString()
+  };
+  receipts.push(r);save();alert('Receipt '+r.id+' Saved as PENDING - Waiting for Admin');show('dashScreen');
+}
+function approveReceipt(i){
+  if(!currentUser||currentUser.role!=='admin') return alert('Only Admin can approve');
+  receipts[i].status='approved';
+  let item=stock.find(s=>s.imei===receipts[i].imei);
+  if(item) item.status='sold';
+  save();alert('Approved');
+}
+function rejectReceipt(i){
+  if(!currentUser||currentUser.role!=='admin') return alert('Only Admin');
+  receipts[i].status='rejected';save();
+}
+function payComm(i){
+  if(!currentUser||currentUser.role!=='admin') return alert('Only Admin');
+  receipts[i].paid=true;save();alert('Commission Paid');
+}
+function viewReceipt(i){
+  currentReceipt=receipts[i];
+  let r=currentReceipt;
+  document.getElementById('receiptPrint').innerHTML=`
+    <h2>JOME COMMUNICATION</h2>
+    <div class="sub">Jome Communication - Uganda</div>
+    <div class="sub2">Tel: 0708013518 • 0731534608</div><hr>
+    <div style="display:flex;justify-content:space-between"><span>Rcpt_No. ${r.id}</span><span>Date ${r.date}</span></div>
+    <div style="display:flex;justify-content:space-between"><span>Time. ${r.time}</span><span>User ${r.agent}</span></div><hr>
+    <div><b>Name : ${r.cust}</b><br><b>Phone_No : ${r.phone}</b><br><b>ID_No: ${r.idno}</b></div><hr>
+    <table><tr><th>Items</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+    <tr><td>${r.model}</td><td>1 PC(s)</td><td>${Number(r.price).toLocaleString()}.00</td><td>${Number(r.price).toLocaleString()}.00</td></tr></table>
+    <div>Imei: ${r.imei}</div><hr>
+    <div class="total"><span>Gross_Total:</span><span>${Number(r.price).toLocaleString()}.00</span></div>
+    <div class="foot">Goods Once Sold Cannot Be Re-Accepted !</div>
+    <div style="text-align:center;margin-top:10px">CEO B.MOSES - Thank You!</div>`;
+  show('printScreen');
+}
+function shareReceipt(){
+  let r=currentReceipt;
+  let txt=`JOME COMMUNICATION%0AReceipt ${r.id}%0A${r.model} - ${r.price} UGX%0AImei ${r.imei}%0AThank You!`;
+  window.open('https://wa.me/?text='+txt,'_blank');
+}
+
+function render(){
+  // Dashboard Boxes - 8 boxes
+  let pending=receipts.filter(r=>r.status==='pending').length;
+  let approved=receipts.filter(r=>r.status==='approved').length;
+  let totalSales=receipts.filter(r=>r.status==='approved').reduce((a,r)=>a+Number(r.price||0),0);
+  let unpaid=receipts.filter(r=>r.status==='approved' && !r.paid).length;
+  let boxes=[
+    ['Total Stock',stock.filter(s=>s.status==='in_stock').length],
+    ['Total Sales',approved],
+    ['Pending_Releases',pending],
+    ['Transfer_Pending',transfers.filter(t=>t.status==='pending').length],
+    ['Total Agents',users.length],
+    ['Total Revenue',totalSales.toLocaleString()+' UGX'],
+    ['Unpaid Commission',unpaid],
+    ['Rejected',receipts.filter(r=>r.status==='rejected').length]
+  ];
+  document.getElementById('dashBoxes').innerHTML=boxes.map(b=>`<div class="box"><b>${b[1]}</b><span>${b[0]}</span></div>`).join('');
+  document.getElementById('latestSales').innerHTML=receipts.slice(-5).reverse().map(r=>`<p>${r.id} - ${r.model} - ${r.price} - <span class="badge ${r.status==='approved'?'approved':''}">${r.status}</span> <button onclick="viewReceipt(${receipts.indexOf(r)})">View Receipt</button></p>`).join('')||'No sales yet';
+  document.getElementById('userList').innerHTML=users.map(u=>`<div class="card">${u.name} - ${u.branch} - Comm ${u.comm}% - ${u.email}</div>`).join('');
+  document.getElementById('stockList').innerHTML=stock.map(s=>`<div class="card">${s.model} - IMEI ${s.imei} - ${s.price} - ${s.branch} - ${s.status}</div>`).join('');
+  document.getElementById('transferList').innerHTML=transfers.map(t=>`<div class="card">${t.model} ${t.imei} : ${t.from} -> ${t.to} - ${t.status}</div>`).join('');
+  // Selects
+  let avail=stock.filter(s=>s.status==='in_stock');
+  document.getElementById('tImei').innerHTML=avail.map(s=>`<option value="${s.imei}">${s.model} - ${s.imei} - ${s.branch}</option>`).join('');
+  document.getElementById('rStock').innerHTML=avail.map(s=>`<option value="${s.imei}">${s.model} - ${s.imei} - ${s.price}</option>`).join('');
+  // Pending for Admin
+  document.getElementById('pendingList').innerHTML=receipts.map((r,i)=>`
+    <div class="card"><b>Receipt ${r.id}</b> <span class="badge">${r.status}</span><br>Agent: ${r.agent} - ${r.branch}<br>${r.model} - IMEI ${r.imei}<br><b>${r.price} UGX</b><br>
+    <div class="flex"><button class="green" onclick="approveReceipt(${i})">✅ APPROVE</button><button onclick="rejectReceipt(${i})">❌ REJECT</button></div>
+    <button class="grey" onclick="viewReceipt(${i})">View Receipt</button></div>`).join('')||'No receipts';
+  // Commission - 5% example
+  document.getElementById('commList').innerHTML=receipts.filter(r=>r.status==='approved').map((r,i)=>{
+    let idx=receipts.indexOf(r); let comm=Math.round(Number(r.price)*0.05);
+    return `<div class="card">${r.agent} - ${r.model} - Sale ${r.price} - Commission ${comm} - ${r.paid?'PAID':'UNPAID'} ${!r.paid?`<button onclick="payComm(${idx})">Pay ${comm}</button>`:''}</div>`
+  }).join('')||'No commission yet';
+}
+render();
+</script>
+</body>
+  </html>
